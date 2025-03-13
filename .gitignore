@@ -1,0 +1,25 @@
+# Ignorar el entorno virtual
+.venv/
+
+
+
+# Ignorar los archivos de caché de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorar configuraciones específicas del sistema operativo
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Ignorar archivos de configuración de editores de texto
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignorar logs y archivos temporales
+*.log
+*.tmp
+
+*.env

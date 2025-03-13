@@ -15,6 +15,6 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 app.register_blueprint(api_bp)
 
-# # db.init_app(app)
-# # with app.app_context():
-# #     db.create_all()
+db.init_app(app)
+with app.app_context():
+    db.create_all()
