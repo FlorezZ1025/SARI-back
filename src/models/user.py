@@ -6,14 +6,14 @@ class User(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(80), nullable=False)
-    lastName = db.Column(db.String(80), nullable=False)
+    last_name = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    user_role = db.Column(db.String(120), nullable=True)
+    role = db.Column(db.String(120), nullable=True)
 
-    def __init__(self, name, lastName, password, email, user_role):
+    def __init__(self, name, last_name, password, email, role):
         self.name = name
-        self.lastName = lastName
+        self.last_name = last_name
         self.email = email
         self.password = password
-        self.user_role = user_role
+        self.role = role
