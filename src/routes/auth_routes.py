@@ -33,7 +33,7 @@ def login():
             'statusCode': 200,
             'message':'Inicio de sesion exitoso'}), 200)
  
-    return res, 200
+    return res
  
 
 @auth_bp.route('/register', methods=['POST'])
@@ -47,7 +47,7 @@ def register():
     user_role = data.get('role')
     
     if User.query.filter_by(email=email).first():
-        return make_response(jsonify({'message': 'User already exists', 'statusCode': 400 }), 400)
+        return make_response(jsonify({'message': 'Email ya registrado', 'statusCode': 400 }), 400)
     
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=12)).decode('utf-8')
 
@@ -60,4 +60,4 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    return make_response(jsonify({'message': 'User created successfully', 'statusCode':201}), 201)
+    return make_response(jsonify({'message': 'Usuario creado exitosamente', 'statusCode':201}), 201)
