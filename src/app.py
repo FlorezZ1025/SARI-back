@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from utils.db import db
 from routes.auth_routes import auth_bp
 from config import Config
+from routes.indicators_routes import indicator_bp
 
 app = Flask(__name__)
 CORS(app) 
@@ -17,6 +18,7 @@ jwt = JWTManager(app)
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 api_bp.register_blueprint(auth_bp)
+api_bp.register_blueprint(indicator_bp)
 
 app.register_blueprint(api_bp)
 
