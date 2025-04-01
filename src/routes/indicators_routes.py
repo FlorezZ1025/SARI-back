@@ -30,19 +30,19 @@ indicator_bp = Blueprint('indicators', __name__, url_prefix='/indicators')
 
 
 #Prueba de web Scrapping
-@indicator_bp.route('/scrap', methods=['GET'])
+@indicator_bp.route('/scrap', methods=['POST'])
 def scrap():
     try:
     # URL de la página de publicaciones
-        url = 'https://investigaciones-pure.udemedellin.edu.co/es/persons/gloria-piedad-gasca-hurtado/publications/'
-        driver.get(url)
+        url1 = 'https://investigaciones-pure.udemedellin.edu.co/es/persons/gloria-piedad-gasca-hurtado/publications/'
+        url2 = 'https://investigaciones-pure.udemedellin.edu.co/es/persons/elkin-lubin-arias-londo%C3%B1o/publications/'
+        driver.get(url2)
 
         # Esperar a que la página cargue completamente
         time.sleep(5)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
 
         # Obtener el HTML de la página
         page_source = driver.page_source
-
         info = []
 
         # Analizar el HTML con BeautifulSoup
@@ -54,9 +54,12 @@ def scrap():
         # Extraer y mostrar la información de cada publicación
         for pub in publications:
             title_tag = pub.find('h3', class_='title')
+            print(title_tag)
             date_tag = pub.find('span', class_='date')
             title = title_tag.text.strip() if title_tag else 'Título no disponible'
             date = date_tag.text.strip() if date_tag else 'Fecha no disponible'
+            print(f'Título: {title}')
+            print(f'Fecha: {date}')
             info.append({'title': title, 'date': date})
 
     except Exception as e:

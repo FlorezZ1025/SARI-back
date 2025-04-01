@@ -9,31 +9,37 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    email = data.get('email')
-    password = data.get('password')
+        email = data.get('email')
+        password = data.get('password')
 
-    user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
 
-    if not user:
-        return make_response(jsonify({'message': 'Email no registrado', 'statusCode': 404}), 404)
-               
+        if not user:
+            return make_response(jsonify({'message': 'Email no registrado', 'statusCode': 404}), 404)
 
-    if not user.password or not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-        return make_response(jsonify({'message': 'Contraseña incorrecta', 'statusCode': 401}), 401)
+
+        if not user.password or not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            return make_response(jsonify({'message': 'Contraseña incorrecta', 'statusCode': 401}), 401)
+
+        access_token = create_access_token(identity=user.email)
+        res = make_response(jsonify({
+                'token':access_token,
+                'email':user.email,
+                'name':user.name,
+                'lastName':user.last_name,
+                'role':user.role,
+                'statusCode': 200,
+                'message':'Inicio de sesion exitoso'}), 200)
+        return res
+        
+    except Exception as e:
+        print(e)
+        return make_response(jsonify({'message': 'Error en el servidor', 'statusCode': 500}), 500)
     
-    access_token = create_access_token(identity=user.email)
-    res = make_response(jsonify({
-            'token':access_token,
-            'email':user.email,
-            'name':user.name,
-            'lastName':user.last_name,
-            'role':user.role,
-            'statusCode': 200,
-            'message':'Inicio de sesion exitoso'}), 200)
- 
-    return res
+  
  
 
 @auth_bp.route('/register', methods=['POST'])
