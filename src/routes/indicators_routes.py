@@ -45,29 +45,77 @@ def get_pure():
         print('URL:', url)
         driver.get(url)
 
-        time.sleep(1)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
-
+        time.sleep(3)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
+        print('Esperando a que la página cargue completamente...')
         page_source = driver.page_source
         info = []
 
         soup = BeautifulSoup(page_source, 'html.parser')
+        h3_tags = soup.find_all('h3', class_='title')
 
-        publications = soup.find_all('div', class_='result-container')
 
-        for pub in publications:
-             title_tag = pub.find('h3', class_='title')
-             date_tag = pub.find('span', class_='date')
-             title = title_tag.text.strip() if title_tag else 'Título no disponible'
-             date = date_tag.text.strip() if date_tag else 'Fecha no disponible'
-             info.append({'title': title, 'date': date})
+        publications_links = [h3.find('a') for h3 in h3_tags if h3.find('a') ]
+        print('Publicaciones encontradas:', publications_links)
+        for pub in publications_links:
+             article_url = pub['href']
+             driver.get(article_url)
+
+             time.sleep(1)  # Esperar a que la página cargue completamente
+             article_source = driver.page_source
+             article_soup = BeautifulSoup(article_source, 'html.parser')
+            
+            #Titulos
+             title_element = driver.find_element(By.CSS_SELECTOR, "div.rendering h1 span")
+             title = title_element.text.strip()
+
+            #Autores
+             authors = []
+             authors_block = article_soup.find('p', class_='relations persons')
+             if authors_block:
+        # 1. Obtener nombres dentro de <a>
+                for a in authors_block.find_all('a'):
+                    name = a.get_text(strip=True)
+                    if name:
+                        authors.append(name)
+
+                text_parts = authors_block.find_all(text=True, recursive=False)
+                for text in text_parts:
+                    # Separar por coma y limpiar
+                    parts = [t.strip() for t in text.split(',') if t.strip()]
+                    authors.extend(parts)
+             
+             #Fechas
+             date = article_soup.find('span', class_='date').text.strip() if article_soup.find('span', class_='date') else 'Fecha no disponible'
+            
+
+             #Hyperlink
+             try:
+               hyperlink_tag = driver.find_element(By.CSS_SELECTOR, "div.doi a")
+               hyperlink = hyperlink_tag.get_attribute('href') if hyperlink_tag else 'No disponible'
+               print('Hyperlink:', hyperlink)
+             except Exception as e:
+                hyperlink = 'No disponible'
+                print('Error al obtener el hyperlink:', e)
+
+             info.append({
+                 'title': title,
+                 'authors': authors,
+                 'date': date,
+                 'hyperlink': hyperlink
+             })
+
+
+        #     time.sleep(1)  # Esperar a que la página cargue completamente
         driver.quit()  # Cerrar el navegador después de usarlo
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print('Error:', e)
+        return jsonify({'message': 'Hubo un error recuperando los artículos', 'statusCode':500}), 500
 
     response = make_response(jsonify({
         'message': 'Scraping realizado con éxito',
         'data': info,
+        'statusCode': 200
     }), 200)
     return response
 
