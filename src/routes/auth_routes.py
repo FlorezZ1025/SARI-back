@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, jwt_re
 from utils.db import db
 from models.user import User
 import bcrypt
+import json
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -24,13 +25,12 @@ def login():
         if not user.password or not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             return make_response(jsonify({'message': 'Contraseña incorrecta', 'statusCode': 401}), 401)
 
-        access_token = create_access_token(identity=user.email)
+        res_user = {'email': user.email, 'name':user.name, 'lastName':user.last_name, 'role': user.role}
+        
+        
+        access_token = create_access_token(identity=json.dumps(res_user))
         res = make_response(jsonify({
                 'token':access_token,
-                'email':user.email,
-                'name':user.name,
-                'lastName':user.last_name,
-                'role':user.role,
                 'statusCode': 200,
                 'message':'Inicio de sesion exitoso'}), 200)
         return res
@@ -46,8 +46,8 @@ def login():
 def register():
     data = request.json
     
-    name = data.get('name')
-    last_name = data.get('lastName')
+    name = data.get('name').lower()
+    last_name = data.get('lastName').lower()
     email = data.get('email')
     password = data.get('password')
     user_role = data.get('role')
