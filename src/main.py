@@ -11,9 +11,9 @@ def add_cors_headers(response):
     # response.headers.add('Access-Control-Allow-Credentials', 'true')  # Para cookies
     return response
 
-# @app.route('/')
-# def index():
-#     return jsonify({'message': 'Hello, World!'})
+@app.route('/')
+def index():
+    return jsonify({'message': 'Hello, World!'})
 
 if __name__ == '__main__':
     app.run(debug=True)

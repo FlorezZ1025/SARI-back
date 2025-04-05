@@ -23,9 +23,9 @@ api_bp.register_blueprint(indicator_bp)
 app.register_blueprint(api_bp)
 
 
-@app.route('/')
-def index():
-    return 'SARIs BACK is running!'
+# @app.route('/')
+# def index():
+#     return 'SARIs BACK is running!'
 
 db.init_app(app)
 with app.app_context():
