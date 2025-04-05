@@ -55,7 +55,6 @@ def get_pure():
 
 
         publications_links = [h3.find('a') for h3 in h3_tags if h3.find('a') ]
-        print('Publicaciones encontradas:', publications_links)
         for pub in publications_links:
              article_url = pub['href']
              driver.get(article_url)
@@ -118,41 +117,3 @@ def get_pure():
         'statusCode': 200
     }), 200)
     return response
-
-
-###################################################################
-
-######################################################
-  
-   # URL de la página de publicaciones
-
-  #
-        # url2 = 'elkin-lubin-arias-londoño/publications/'
-        # driver.get(url)
-
-        # # Esperar a que la página cargue completamente
-
-        # # Obtener el HTML de la página
-        # page_source = driver.page_source
-        # info = []
-
-        # # Analizar el HTML con BeautifulSoup
-        # soup = BeautifulSoup(page_source, 'html.parser')
-
-        # # Encontrar todos los elementos que contienen las publicaciones
-        # publications = soup.find_all('div', class_='result-container')
-
-        # # Extraer y mostrar la información de cada publicación
-        # for pub in publications:
-        #     title_tag = pub.find('h3', class_='title')
-        #     date_tag = pub.find('span', class_='date')
-        #     title = title_tag.text.strip() if title_tag else 'Título no disponible'
-        #     date = date_tag.text.strip() if date_tag else 'Fecha no disponible'
-        #     info.append({'title': title, 'date': date})
-
-    # except Exception as e:
-    #     return jsonify({'error': str(e)}), 500
-
-    # finally:
-    # # Cerrar el navegador
-    #     driver.quit()
