@@ -1,3 +1,4 @@
+import uuid
 from utils.db import db
 from models.user import User
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -5,10 +6,10 @@ from sqlalchemy.dialects.postgresql import ARRAY
 class Article(db.Model):
     __tablename__ = 'articles'
 
-    id = db.Column(db.String(36), primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     id_user = db.Column(db.String(36), db.ForeignKey(User.id), nullable=False)
     title = db.Column(db.String(255), nullable=False)
-    authors = db.Column(ARRAY(db.String(255)), nullable=True)
+    authors = db.Column(db.String(255), nullable=True)
     date = db.Column(db.String(255), nullable=True)
     hyperlink = db.Column(db.String(255), nullable=True)
 
