@@ -6,14 +6,13 @@ from services.web_scrapping import get_web_scrapping
 
 from selenium.webdriver.common.by import By
 
-from models.user import User
-from models.article import Article
 
-
-driver = get_web_scrapping()
 
 def get_pure_service(request):
+
     try:
+        driver = get_web_scrapping()
+
         data = request.get_json()
         full_name = data.get('fullname')
 
@@ -86,7 +85,7 @@ def get_pure_service(request):
         print('Error:', e)
         return jsonify({'message': 'Hubo un error recuperando los artículos', 'statusCode':500}), 500
 
-    save_articles_to(request.email, info)
+    # Article.insert_article(email=data['email'], articles=info)
 
     response = make_response(jsonify({
         'message': 'Scraping realizado con éxito',
@@ -94,19 +93,3 @@ def get_pure_service(request):
         'statusCode': 200
     }), 200)
     return response
-
-def save_articles_to(email: str, articles: list):
-
-    user: User = User.query.filter_by(email=email).first()
-
-    Article.query.filter_by(user_id=user.id, hyperlink= not None).delete()
-    for article in articles:
-        article['id_user'] = user.id
-        article_obj = Article(**article)
-        db.session.add(article_obj)
-
-
-    db.session.commit()
-
-    
-    pass

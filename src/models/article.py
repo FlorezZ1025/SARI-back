@@ -19,3 +19,22 @@ class Article(db.Model):
                                    secondaryjoin='Usuario.id == Usuario.id',
                                    viewonly=True,
                                    lazy='dynamic')
+    
+    def insert_articles(self, email: str, articles: list):
+
+        user = User.query.filter_by(email=email).first()
+
+        Article.query.filter_by(id_user=user.id).delete()
+
+        articles = [
+            Article(
+            id_user=user.id,
+            title=article['title'],
+            authors=article['authors'],
+            date=article['date'],
+            hyperlink=article['hyperlink']
+            )
+            for article in articles
+        ]
+        db.session.add_all(articles)
+        db.session.commit()
