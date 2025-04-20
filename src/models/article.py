@@ -18,8 +18,11 @@ class Article(db.Model):
 
         user = User.query.filter_by(email=email).first()
 
-        Article.query.filter_by(id_user=user.id).delete()
-
+        Article.query.filter(
+            Article.id_user == user.id,
+            Article.hyperlink != None ).delete()
+        print('--------------')
+        print(json.dumps(articles[0]['authors']))
         articles = [
             Article(
             id = article['id'],

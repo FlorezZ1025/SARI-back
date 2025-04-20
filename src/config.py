@@ -12,7 +12,7 @@ class Config:
     DEBUG = True  
     PORT = 5000  
     JWT_TOKEN_LOCATION = 'headers'
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=60*60*1)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=60*60*24)
     JWT_SECRET_KEY = os.getenv('JWT_SECRET')
 
 
