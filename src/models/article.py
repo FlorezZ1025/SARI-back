@@ -1,24 +1,18 @@
-import uuid
 from utils.db import db
 from models.user import User
 from sqlalchemy.dialects.postgresql import ARRAY
+import json
 
 class Article(db.Model):
     __tablename__ = 'articles'
 
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.String(36), primary_key=True)
     id_user = db.Column(db.String(36), db.ForeignKey(User.id), nullable=False)
     title = db.Column(db.String(255), nullable=False)
     authors = db.Column(db.String(255), nullable=True)
     date = db.Column(db.String(255), nullable=True)
     hyperlink = db.Column(db.String(255), nullable=True)
-
-    autores_objetos = db.relationship('Usuario',
-                                   secondary='usuarios',  # Esto es un truco para la relación
-                                   primaryjoin='Articulo.autores.contains(Usuario.id)',
-                                   secondaryjoin='Usuario.id == Usuario.id',
-                                   viewonly=True,
-                                   lazy='dynamic')
+    state = db.Column(db.String(255), nullable=False)
     
     def insert_articles(self, email: str, articles: list):
 
@@ -28,11 +22,13 @@ class Article(db.Model):
 
         articles = [
             Article(
-            id_user=user.id,
-            title=article['title'],
-            authors=article['authors'],
-            date=article['date'],
-            hyperlink=article['hyperlink']
+            id = article['id'],
+            id_user = user.id,
+            title = article['title'],
+            authors = json.dumps(article['authors']),
+            date = article['date'],
+            hyperlink = article['hyperlink'],
+            state = article['state'],
             )
             for article in articles
         ]

@@ -1,25 +1,30 @@
+import uuid
 from flask import make_response, jsonify
 from bs4 import BeautifulSoup
 import time
 from config import PURE
+from models.article import Article
 from services.web_scrapping import get_web_scrapping
 
 from selenium.webdriver.common.by import By
 
-
+driver = get_web_scrapping()
+article = Article()
 
 def get_pure_service(request):
-
+    print('Iniciando el scraping de PURE...')
+    print(request.json['email'])
     try:
-        driver = get_web_scrapping()
 
-        data = request.get_json()
-        full_name = data.get('fullname')
+        # data = request.get_json()
+        full_name = request.json['fullname']
 
         url = PURE.PURE_URL + full_name +'/publications/'
+        print('probandooo')
         driver.get(url)
+        print('probandaaa')
 
-        time.sleep(3)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
+        time.sleep(1)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
         print('Esperando a que la página cargue completamente...')
         page_source = driver.page_source
         info = []
@@ -33,7 +38,7 @@ def get_pure_service(request):
              article_url = pub['href']
              driver.get(article_url)
 
-             time.sleep(1)  # Esperar a que la página cargue completamente
+             time.sleep(0.5)  # Esperar a que la página cargue completamente
              article_source = driver.page_source
              article_soup = BeautifulSoup(article_source, 'html.parser')
             
@@ -71,10 +76,12 @@ def get_pure_service(request):
                 print('Error al obtener el hyperlink:', e)
 
              info.append({
+                 'id': str(uuid.uuid4()),  # Generar un ID único para cada artículo
                  'title': title,
                  'authors': authors,
                  'date': date,
-                 'hyperlink': hyperlink
+                 'hyperlink': hyperlink,
+                 'state':'publicado'
              })
 
 
@@ -85,7 +92,9 @@ def get_pure_service(request):
         print('Error:', e)
         return jsonify({'message': 'Hubo un error recuperando los artículos', 'statusCode':500}), 500
 
-    # Article.insert_article(email=data['email'], articles=info)
+    article.insert_articles(email=request.json['email'], articles=info)
+
+
 
     response = make_response(jsonify({
         'message': 'Scraping realizado con éxito',

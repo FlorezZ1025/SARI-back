@@ -4,7 +4,7 @@ from flask_jwt_extended import JWTManager
 from utils.db import db
 from routes.auth_routes import auth_bp
 from config import DevelopmentConfig
-from routes.indicators_routes import indicator_bp
+from routes.article_routes import article_bp
 from flask import jsonify
 
 app = Flask(__name__)
@@ -20,7 +20,7 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 blue_prints = [
     auth_bp,
-    indicator_bp
+    article_bp,
 ]
 
 for bp in blue_prints:
@@ -30,8 +30,7 @@ app.register_blueprint(api_bp)
 
 db.init_app(app)
 
-with app.app_context():
-    db.create_all()
+
 
 # @app.after_request
 # def add_cors_headers(response):
@@ -47,4 +46,6 @@ def index():
     return jsonify({'message': 'Hello, World!'})
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=app.config['DEBUG'])
