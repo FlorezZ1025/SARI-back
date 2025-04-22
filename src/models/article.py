@@ -20,7 +20,7 @@ class Article(db.Model):
 
         Article.query.filter(
             Article.id_user == user.id,
-            Article.hyperlink != None ).delete()
+            Article.state == 'publicado' ).delete()
         print('--------------')
         print(json.dumps(articles[0]['authors']))
         articles = [

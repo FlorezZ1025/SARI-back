@@ -32,7 +32,10 @@ def create_article():
     date = data.get('date')
     state = data.get('state')
 
-    if Article.query.filter_by(title=title).first():
+    if Article.query.filter(
+            Article.id_user == user.id,
+            Article.title == title).first():
+  
         return make_response(jsonify({
             'message': 'Ya existe un articulo con ese nombre',
             'statusCode': 400
@@ -50,9 +53,69 @@ def create_article():
     db.session.commit()
 
     res = make_response(jsonify({
-        'message': 'Article created successfully',
+        'message': 'Artículo creado correctamente',
         'statusCode': 200,
         'idArticle': new_id,
     }))
     
     return  res
+
+@article_bp.route('/delete', methods=['POST'])
+@jwt_required()
+def delete_article():
+    user = json.loads(get_jwt_identity())
+
+    data = request.json
+    id = data.get('id')
+
+    article = Article.query.filter_by(id=id).first()
+    
+    if not article:
+        return make_response(jsonify({
+            'message': 'No existe un artículo con ese ID',
+            'statusCode': 404
+        }), 404)
+    
+    db.session.delete(article)
+    db.session.commit()
+
+    res = make_response(jsonify({
+        'message': 'Artículo eliminado correctamente',
+        'statusCode': 200,
+    }))
+
+    return res
+
+@article_bp.route('/update', methods=['POST'])
+@jwt_required()
+def update_article():
+    user = json.loads(get_jwt_identity())
+
+    data = request.json
+    id = data.get('id')
+    title = data.get('title')
+    authors = json.dumps(data.get('authors'))
+    date = data.get('date')
+    state = data.get('state')
+
+    article = Article.query.filter_by(id=id).first()
+    
+    if not article:
+        return make_response(jsonify({
+            'message': 'No existe un artículo con ese ID',
+            'statusCode': 404
+        }), 404)
+    
+    article.title = title
+    article.authors = authors
+    article.date = date
+    article.state = state
+
+    db.session.commit()
+
+    res = make_response(jsonify({
+        'message': 'Artículo actualizado correctamente',
+        'statusCode': 200,
+    }))
+
+    return res

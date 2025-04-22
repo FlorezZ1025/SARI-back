@@ -20,9 +20,9 @@ def get_pure_service(request):
         full_name = request.json['fullname']
 
         url = PURE.PURE_URL + full_name +'/publications/'
-        print('probandooo')
+        print('entrandooo')
         driver.get(url)
-        print('probandaaa')
+        print('entre eh eh eh')
 
         time.sleep(1)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
         print('Esperando a que la página cargue completamente...')
@@ -73,7 +73,7 @@ def get_pure_service(request):
                print('Hyperlink:', hyperlink)
              except Exception as e:
                 hyperlink = 'No disponible'
-                print('Error al obtener el hyperlink:', e)
+                print(hyperlink)
 
              info.append({
                  'id': str(uuid.uuid4()),  # Generar un ID único para cada artículo
