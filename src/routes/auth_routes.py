@@ -80,8 +80,8 @@ def update_user():
 
   
     new_email = data.get('email')
-    new_name = data.get('name').lower()
-    new_last_name = data.get('lastName').lower()
+    new_name = data.get('name')
+    new_last_name = data.get('lastName')
     
     test_user = User.query.filter_by(email=new_email).first()
     

@@ -8,10 +8,11 @@ from services.web_scrapping import get_web_scrapping
 
 from selenium.webdriver.common.by import By
 
-driver = get_web_scrapping()
 article = Article()
 
-def get_pure_service(request):
+def get_pure_articles(request):
+    driver = get_web_scrapping()
+
     print('Iniciando el scraping de PURE...')
     print(request.json['email'])
     try:
@@ -19,7 +20,7 @@ def get_pure_service(request):
         # data = request.get_json()
         full_name = request.json['fullname']
 
-        url = PURE.PURE_URL + full_name +'/publications/'
+        url = PURE.PURE_ARTICLES_URL + full_name +'/publications/'
         print('entrandooo')
         driver.get(url)
         print('entre eh eh eh')
@@ -38,7 +39,7 @@ def get_pure_service(request):
              article_url = pub['href']
              driver.get(article_url)
 
-             time.sleep(0.5)  # Esperar a que la página cargue completamente
+            #  time.sleep(0.5)  # Esperar a que la página cargue completamente
              article_source = driver.page_source
              article_soup = BeautifulSoup(article_source, 'html.parser')
             
@@ -102,3 +103,6 @@ def get_pure_service(request):
         'statusCode': 200
     }), 200)
     return response
+
+def get_pure_projects(request):
+    print('capturando los proyectos de pure...')

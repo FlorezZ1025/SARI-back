@@ -37,4 +37,4 @@ class DevelopmentConfig(Config):
 
 
 class PURE:
-    PURE_URL = os.getenv('PURE_URL')
+    PURE_ARTICLES_URL = os.getenv('PURE_ARTICLES_URL')

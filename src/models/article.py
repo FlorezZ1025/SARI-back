@@ -1,6 +1,5 @@
 from utils.db import db
 from models.user import User
-from sqlalchemy.dialects.postgresql import ARRAY
 import json
 
 class Article(db.Model):
