@@ -1,7 +1,7 @@
 from flask import Blueprint, make_response, request, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, set_access_cookies
-from utils.db import db
-from models.user import User
+from src.utils.db import db
+from src.models.user import User
 import bcrypt
 import json
 

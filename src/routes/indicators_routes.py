@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager # type: ignore
 import time
 import os
-from utils.db import db
+from src.utils.db import db
 # from models.article import Article
 
 # Configurar el navegador (Chrome)

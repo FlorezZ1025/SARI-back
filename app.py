@@ -2,10 +2,10 @@ from flask import Blueprint, Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
-from utils.db import db
-from routes.auth_routes import auth_bp
-from config import Config
-from routes.indicators_routes import indicator_bp
+from src.utils.db import db
+from src.routes.auth_routes import auth_bp
+from src.config import Config
+from src.routes.indicators_routes import indicator_bp
 
 app = Flask(__name__)
 CORS(app) 

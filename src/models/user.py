@@ -1,4 +1,4 @@
-from utils.db import db
+from src.utils.db import db
 import uuid
 
 class User(db.Model):
