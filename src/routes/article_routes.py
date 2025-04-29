@@ -135,7 +135,8 @@ def get_all_articles():
             'title': article.title,
             'authors': json.loads(article.authors),
             'date': article.date,
-            'state': article.state
+            'state': article.state,
+            'hyperlink': article.hyperlink if article.hyperlink else 'No disponible'
         })
     res = make_response(jsonify({
         'message': 'Artículos obtenidos correctamente',
