@@ -8,7 +8,8 @@ from config import Config
 from src.routes.indicators_routes import indicator_bp
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app)
+# , resources={r"/*": {"origins": ["https://sari-front_vercel.app", "http://localhost:4200"]}} 
 
 
 app.config.from_object(Config)
@@ -27,11 +28,18 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+allowed_origins = [
+    'https://sari-front.vercel.app',
+    'http://localhost:4200'  # o el puerto de tu front local
+]
 
 @app.after_request
 def add_cors_headers(response):
     # 
-    # response.headers.add('Access-Control-Allow-Origin', '*')
+    origin = request.headers.get('Origin')
+    print(f"Origin: {origin}")
+    if origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
     response.headers.add('Access-Control-Allow-credentials', True)
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')

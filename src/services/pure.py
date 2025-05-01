@@ -1,51 +1,31 @@
-from flask import Blueprint, make_response, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
-import requests
+import uuid
+from flask import make_response, jsonify
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager # type: ignore
 import time
-import os
-from src.utils.db import db
-# from models.article import Article
+from config import PURE
+from models.article import Article
+from services.web_scrapping import get_web_scrapping
 
-# Configurar el navegador (Chrome)
-options = webdriver.ChromeOptions()
-options.add_argument('--headless')  # Ejecutar sin ventana gráfica
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+from selenium.webdriver.common.by import By
 
-# Crear el driver
-service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service, options=options)
+article = Article()
 
-PURE_URL = os.getenv('PURE_URL')
+def get_pure_articles(request):
+    driver = get_web_scrapping()
 
-indicator_bp = Blueprint('indicators', __name__, url_prefix='/indicators')
-
-#Revisar e implementar la ruta de los articulos
-
-
-#Prueba de web Scrapping
-
-@indicator_bp.route('/pure_articles', methods=['POST'])
-@jwt_required()
-def get_pure():
+    print('Iniciando el scraping de PURE...')
+    print(request.json['email'])
     try:
-        current_user = get_jwt_identity()
-        data = request.get_json()
-        full_name = data.get('fullname')
 
-        url = PURE_URL + full_name +'/publications/'
-        print('URL:', url)
+        # data = request.get_json()
+        full_name = request.json['fullname']
+
+        url = PURE.PURE_ARTICLES_URL + full_name +'/publications/'
+        print('entrandooo')
         driver.get(url)
+        print('entre eh eh eh')
 
-        time.sleep(3)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
+        time.sleep(1)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
         print('Esperando a que la página cargue completamente...')
         page_source = driver.page_source
         info = []
@@ -59,7 +39,7 @@ def get_pure():
              article_url = pub['href']
              driver.get(article_url)
 
-             time.sleep(1)  # Esperar a que la página cargue completamente
+            #  time.sleep(0.5)  # Esperar a que la página cargue completamente
              article_source = driver.page_source
              article_soup = BeautifulSoup(article_source, 'html.parser')
             
@@ -94,13 +74,15 @@ def get_pure():
                print('Hyperlink:', hyperlink)
              except Exception as e:
                 hyperlink = 'No disponible'
-                print('Error al obtener el hyperlink:', e)
+                print(hyperlink)
 
              info.append({
+                 'id': str(uuid.uuid4()),  # Generar un ID único para cada artículo
                  'title': title,
                  'authors': authors,
                  'date': date,
-                 'hyperlink': hyperlink
+                 'hyperlink': hyperlink,
+                 'state':'publicado'
              })
 
 
@@ -111,9 +93,16 @@ def get_pure():
         print('Error:', e)
         return jsonify({'message': 'Hubo un error recuperando los artículos', 'statusCode':500}), 500
 
+    article.insert_articles(email=request.json['email'], articles=info)
+
+
+
     response = make_response(jsonify({
         'message': 'Scraping realizado con éxito',
         'data': info,
         'statusCode': 200
     }), 200)
     return response
+
+def get_pure_projects(request):
+    print('capturando los proyectos de pure...')

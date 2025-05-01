@@ -25,7 +25,7 @@ def login():
         if not user.password or not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             return make_response(jsonify({'message': 'Contraseña incorrecta', 'statusCode': 401}), 401)
 
-        res_user = {'email': user.email, 'name':user.name, 'lastName':user.last_name, 'role': user.role}
+        res_user = {'id':user.id,'email': user.email, 'name':user.name, 'lastName':user.last_name, 'role': user.role}
         
         
         access_token = create_access_token(identity=json.dumps(res_user))
@@ -67,3 +67,42 @@ def register():
     db.session.commit()
 
     return make_response(jsonify({'message': 'Usuario creado exitosamente', 'statusCode':201}), 201)
+
+@auth_bp.route('/update', methods=['POST'])
+@jwt_required()
+def update_user():
+    try:
+        data = request.json
+        user_token = json.loads(get_jwt_identity())
+        email = user_token['email']
+
+
+        current_user = User.query.filter_by(email=email).first()
+
+    
+        new_email = data.get('email')
+        new_name = data.get('name')
+        new_last_name = data.get('lastName')
+
+        test_user = User.query.filter_by(email=new_email).first()
+
+        if test_user and test_user.id != current_user.id:
+            return make_response(jsonify({'message': 'Email ya registrado', 'statusCode': 400}), 400)
+
+        current_user.email = new_email
+        current_user.name = new_name
+        current_user.last_name = new_last_name
+
+        res_user = {'id':current_user.id,'email': current_user.email, 'name':current_user.name, 'lastName':current_user.last_name, 'role': current_user.role} 
+        new_access_token = create_access_token(identity=json.dumps(res_user))
+
+        db.session.commit()
+        res = make_response(jsonify({
+            'token': new_access_token,
+            'statusCode': 200,
+            'message':'Usuario actualizado exitosamente'}), 200)
+    except Exception as e:
+        print(e)
+        return make_response(jsonify({'message': 'Error en el servidor', 'statusCode': 500}), 500)
+    
+    return res
