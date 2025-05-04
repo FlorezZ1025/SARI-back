@@ -2,10 +2,10 @@ import json
 import uuid
 from flask import Blueprint, jsonify, make_response, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models.article import Article
-from models.user import User
-from services.pure import get_pure_articles
-from utils.db import db
+from src.models.article import Article
+from src.models.user import User
+from src.services.pure import get_pure_articles
+from src.utils.db import db
 
 
 article_bp = Blueprint('articles', __name__, url_prefix='/articles')
@@ -122,7 +122,6 @@ def update_article():
 @article_bp.route('/get_all', methods=['GET'])
 @jwt_required()
 def get_all_articles():
-    
     user = json.loads(get_jwt_identity())
     email = user['email']
     user = User.query.filter_by(email=email).first()
@@ -138,10 +137,5 @@ def get_all_articles():
             'state': article.state,
             'hyperlink': article.hyperlink if article.hyperlink else 'No disponible'
         })
-    res = make_response(jsonify({
-        'message': 'Artículos obtenidos correctamente',
-        'statusCode': 200,
-        'data': articles_list
-    }),200)
-
+    res = make_response(jsonify(articles_list),200)
     return res

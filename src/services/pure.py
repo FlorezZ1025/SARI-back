@@ -3,8 +3,8 @@ from flask import make_response, jsonify
 from bs4 import BeautifulSoup
 import time
 from config import PURE
-from models.article import Article
-from services.web_scrapping import get_web_scrapping
+from src.models.article import Article
+from src.services.web_scrapping import get_web_scrapping
 
 from selenium.webdriver.common.by import By
 
@@ -99,7 +99,7 @@ def get_pure_articles(request):
 
     response = make_response(jsonify({
         'message': 'Scraping realizado con éxito',
-        'data': info,
+        'articles': info,
         'statusCode': 200
     }), 200)
     return response

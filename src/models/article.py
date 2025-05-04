@@ -1,5 +1,5 @@
-from utils.db import db
-from models.user import User
+from src.utils.db import db
+from src.models.user import User
 import json
 
 class Article(db.Model):
