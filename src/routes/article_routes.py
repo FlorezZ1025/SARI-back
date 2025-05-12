@@ -2,12 +2,12 @@ import json
 import uuid
 from flask import Blueprint, jsonify, make_response, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from src.services.supabase_functions import upload_pdf_to_supabase
+from src.services.supabase_functions import get_object_key_from_url, upload_pdf_to_supabase
 from src.models.article import Article
 from src.models.user import User
 from src.services.pure import get_pure_articles
 from src.utils.db import db
-
+from src.utils.db import s3
 
 article_bp = Blueprint('articles', __name__, url_prefix='/articles')
 
@@ -27,7 +27,6 @@ def create_article():
     user = User.query.filter_by(email=email).first()
     file_data = request.files.get('pdf')
     print(file_data)
-    print(request.form.values)
     new_id = str(uuid.uuid4())
     title = request.form.get('title')
     authors = request.form.get('authors')
@@ -58,12 +57,19 @@ def create_article():
     ))
 
     db.session.commit()
-
-    res = make_response(jsonify({
-        'message': 'Artículo creado correctamente',
-        'statusCode': 200,
-        'idArticle': new_id,
-    }))
+    if pdf_url:
+        res = make_response(jsonify({
+            'message': 'Artículo creado correctamente',
+            'statusCode': 200,
+            'idArticle': new_id,
+            'pdfUrl': pdf_url
+        }))
+    else:
+        res = make_response(jsonify({
+            'message': 'Artículo creado correctamente',
+            'statusCode': 200,
+            'idArticle': new_id,
+        }))
     
     return  res
 
@@ -80,7 +86,10 @@ def delete_article():
             'message': 'No existe un artículo con ese ID',
             'statusCode': 404
         }), 404)
-    
+    if article.pdf_url:
+            object_key = get_object_key_from_url(article.pdf_url)
+            if object_key:
+                s3.delete_object(Bucket='evidences-pdfs', Key=object_key)
     db.session.delete(article)
     db.session.commit()
 
