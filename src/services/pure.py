@@ -5,7 +5,6 @@ import time
 from config import PURE
 from src.models.article import Article
 from src.services.web_scrapping import get_web_scrapping
-
 from selenium.webdriver.common.by import By
 
 article = Article()
@@ -13,26 +12,23 @@ article = Article()
 def get_pure_articles(request):
     driver = get_web_scrapping()
 
-    print('Iniciando el scraping de PURE...')
     print(request.json['email'])
     try:
 
         # data = request.get_json()
         full_name = request.json['fullname']
-
+        print('Nombre completo:', full_name)
         url = PURE.PURE_ARTICLES_URL + full_name +'/publications/'
         print('entrandooo')
         driver.get(url)
         print('entre eh eh eh')
 
         time.sleep(1)  # Ajusta el tiempo según la velocidad de tu conexión y la carga del sitio
-        print('Esperando a que la página cargue completamente...')
         page_source = driver.page_source
         info = []
 
         soup = BeautifulSoup(page_source, 'html.parser')
         h3_tags = soup.find_all('h3', class_='title')
-
 
         publications_links = [h3.find('a') for h3 in h3_tags if h3.find('a') ]
         for pub in publications_links:

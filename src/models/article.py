@@ -12,6 +12,7 @@ class Article(db.Model):
     date = db.Column(db.String(255), nullable=True)
     hyperlink = db.Column(db.String(255), nullable=True)
     state = db.Column(db.String(255), nullable=False)
+    pdf_url = db.Column(db.String(500), nullable=True) 
     
     def insert_articles(self, email: str, articles: list):
 
@@ -21,7 +22,6 @@ class Article(db.Model):
             Article.id_user == user.id,
             Article.state == 'publicado' ).delete()
         print('--------------')
-        print(json.dumps(articles[0]['authors']))
         articles = [
             Article(
             id = article['id'],

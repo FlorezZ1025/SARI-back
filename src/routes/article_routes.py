@@ -2,6 +2,7 @@ import json
 import uuid
 from flask import Blueprint, jsonify, make_response, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from src.services.supabase_functions import upload_pdf_to_supabase
 from src.models.article import Article
 from src.models.user import User
 from src.services.pure import get_pure_articles
@@ -24,13 +25,14 @@ def create_article():
     user_token = json.loads(get_jwt_identity())
     email = user_token['email']
     user = User.query.filter_by(email=email).first()
-    data = request.json
-
+    file_data = request.files.get('pdf')
+    print(file_data)
+    print(request.form.values)
     new_id = str(uuid.uuid4())
-    title = data.get('title')
-    authors = json.dumps(data.get('authors'))
-    date = data.get('date')
-    state = data.get('state')
+    title = request.form.get('title')
+    authors = request.form.get('authors')
+    date = request.form.get('date')
+    state = request.form.get('state')
 
     if Article.query.filter(
             Article.id_user == user.id,
@@ -41,13 +43,18 @@ def create_article():
             'statusCode': 400
         }), 400)
     
+    pdf_url = None
+    if file_data:
+        pdf_url = upload_pdf_to_supabase(file_data)
+
     db.session.add(Article(
         id = new_id,
         id_user = user.id,
         title = title,
         authors = authors,
         date = date,
-        state = state
+        state = state,
+        pdf_url = pdf_url,
     ))
 
     db.session.commit()
@@ -63,8 +70,6 @@ def create_article():
 @article_bp.route('/delete', methods=['POST'])
 @jwt_required()
 def delete_article():
-    user = json.loads(get_jwt_identity())
-
     data = request.json
     id = data.get('id')
 
@@ -138,4 +143,31 @@ def get_all_articles():
             'hyperlink': article.hyperlink if article.hyperlink else 'No disponible'
         })
     res = make_response(jsonify(articles_list),200)
+    return res
+
+@article_bp.route('/add_hyperlink', methods=['POST'])
+@jwt_required()
+def add_hyperlink():
+    user = json.loads(get_jwt_identity())
+    email = user['email']
+    user = User.query.filter_by(email=email).first()
+    data = request.json
+
+    id = data.get('id')
+    hyperlink = data.get('hyperlink')
+
+    article = Article.query.filter_by(id=id).first()
+    
+    if not article:
+        return make_response(jsonify({
+            'message': 'No existe un artículo con ese ID',
+            'statusCode': 404
+        }), 404)
+    
+    article.hyperlink = hyperlink
+    print(article)
+    db.session.commit()
+
+    res = make_response(jsonify(article.id),200)
+
     return res

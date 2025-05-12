@@ -12,7 +12,6 @@ CORS(app)
 
 app.config.from_object(ProductionConfig)
 app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'][0] 
-
 jwt = JWTManager(app)
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
