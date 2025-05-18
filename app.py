@@ -6,6 +6,7 @@ from src.utils.db import db
 from src.routes.auth_routes import auth_bp
 from config import Config, ProductionConfig
 from src.routes.article_routes import article_bp
+from src.routes.project_routes import project_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +19,7 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 api_bp.register_blueprint(auth_bp)
 api_bp.register_blueprint(article_bp)
+api_bp.register_blueprint(project_bp)
 
 app.register_blueprint(api_bp)
 

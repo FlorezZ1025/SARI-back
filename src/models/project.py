@@ -8,23 +8,26 @@ class Project(db.Model):
     id = db.Column(db.String(36), primary_key=True)
     id_user = db.Column(db.String(36), db.ForeignKey(User.id), nullable=False)
     title = db.Column(db.String(255), nullable=False)
+    investigators = db.Column(db.String(255), nullable=True)
     date = db.Column(db.String(255), nullable=True)
-    state = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.String(255), nullable=False)
+    pdf_url = db.Column(db.String(500), nullable=True)
 
-    def insert_porjects(self, email: str, projects: list):
+    def insert_projects(self, email: str, projects: list):
         user = User.query.filter_by(email=email).first()
 
         Project.query.filter(
             Project.id_user == user.id,
-            Project.state == 'publicado').delete()
+            Project.status == 'Finalizado').delete()
 
         projects = [
             Project(
                 id=project['id'],
                 id_user=user.id,
                 title=project['title'],
+                investigators=json.dumps(project['investigators']),
                 date=project['date'],
-                state=project['state'],
+                status=project['status'],
             )
             for project in projects
         ]

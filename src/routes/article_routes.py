@@ -23,18 +23,17 @@ def get_pure_articles_():
 @jwt_required()
 def create_article():
     user_token = json.loads(get_jwt_identity())
-    email = user_token['email']
-    user = User.query.filter_by(email=email).first()
-    file_data = request.files.get('pdf')
-    print(file_data)
+    user_id = user_token['id']
+
     new_id = str(uuid.uuid4())
     title = request.form.get('title')
     authors = request.form.get('authors')
     date = request.form.get('date')
     state = request.form.get('state')
+    file_data = request.files.get('pdf')
 
     if Article.query.filter(
-            Article.id_user == user.id,
+            Article.id_user == user_id,
             Article.title == title).first():
   
         return make_response(jsonify({
@@ -48,7 +47,7 @@ def create_article():
 
     db.session.add(Article(
         id = new_id,
-        id_user = user.id,
+        id_user = user_id,
         title = title,
         authors = authors,
         date = date,
@@ -62,7 +61,7 @@ def create_article():
             'message': 'Artículo creado correctamente',
             'statusCode': 200,
             'idArticle': new_id,
-            'pdfUrl': pdf_url
+            'evidenceUrl': pdf_url
         }))
     else:
         res = make_response(jsonify({
@@ -103,33 +102,57 @@ def delete_article():
 @article_bp.route('/update', methods=['POST'])
 @jwt_required()
 def update_article():
+    user_token = json.loads(get_jwt_identity())
+    user_id = user_token['id']
 
-    data = request.json
-    id = data.get('id')
-    title = data.get('title')
-    authors = json.dumps(data.get('authors'))
-    date = data.get('date')
-    state = data.get('state')
+    id = request.form.get('id') 
+    title = request.form.get('title')
+    authors = request.form.get('authors')
+    date = request.form.get('date')
+    state = request.form.get('state')
+    file_data = request.files.get('pdf')
 
     article = Article.query.filter_by(id=id).first()
+    print(id)
+    print(article)
+    pdf_url = article.pdf_url
     
-    if not article:
+    if Article.query.filter(
+            Article.id != id,
+            Article.id_user == user_id,
+            Article.title == title).first():
+  
         return make_response(jsonify({
-            'message': 'No existe un artículo con ese ID',
-            'statusCode': 404
-        }), 404)
+            'message': 'Ya existe un articulo con ese nombre',
+            'statusCode': 400
+        }), 400)
+    previous_url = article.pdf_url
+    if file_data and previous_url:
+        object_key = get_object_key_from_url(article.pdf_url)
+        if object_key:
+            s3.delete_object(Bucket='evidences-pdfs', Key=object_key)
+            pdf_url = upload_pdf_to_supabase(file_data)
+    elif file_data:
+        pdf_url = upload_pdf_to_supabase(file_data)    
     
     article.title = title
     article.authors = authors
     article.date = date
     article.state = state
+    article.pdf_url = pdf_url
 
     db.session.commit()
-
-    res = make_response(jsonify({
-        'message': 'Artículo actualizado correctamente',
-        'statusCode': 200,
-    }))
+    if pdf_url:
+        res = make_response(jsonify({
+            'message': 'Artículo actualizado correctamente',
+            'statusCode': 200,
+            'evidenceUrl': pdf_url
+        }))
+    else:
+        res = make_response(jsonify({
+            'message': 'Artículo actualizado correctamente',
+            'statusCode': 200,
+        }))
 
     return res
 
@@ -149,7 +172,8 @@ def get_all_articles():
             'authors': json.loads(article.authors),
             'date': article.date,
             'state': article.state,
-            'hyperlink': article.hyperlink if article.hyperlink else 'No disponible'
+            'hyperlink': article.hyperlink if article.hyperlink else 'No disponible',
+            'evidenceUrl': article.pdf_url,
         })
     res = make_response(jsonify(articles_list),200)
     return res

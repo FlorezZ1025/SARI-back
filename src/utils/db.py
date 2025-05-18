@@ -9,8 +9,7 @@ ENDPOINT_SUP_S3 = os.getenv('ENDPOINT_SUP_S3')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 # BUCKET_NAME = 'evidences-pdfs'
-print(ENDPOINT_SUP_S3)
-print(AWS_ACCESS_KEY_ID)
+
 s3 = boto3.client(
     's3',
     endpoint_url=ENDPOINT_SUP_S3,
