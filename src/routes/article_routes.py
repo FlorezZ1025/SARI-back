@@ -42,8 +42,9 @@ def create_article():
         }), 400)
     
     pdf_url = None
+    bucket_name = 'evidences-pdfs'
     if file_data:
-        pdf_url = upload_pdf_to_supabase(file_data)
+        pdf_url = upload_pdf_to_supabase(file_data, bucket_name)
 
     db.session.add(Article(
         id = new_id,
@@ -198,7 +199,6 @@ def add_hyperlink():
         }), 404)
     
     article.hyperlink = hyperlink
-    print(article)
     db.session.commit()
 
     res = make_response(jsonify(article.id),200)

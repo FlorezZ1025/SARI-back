@@ -9,9 +9,10 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 BUCKET_NAME = os.getenv('BUCKET_NAME')
-BUCKET_URL = os.getenv('BUCKET_URL')
+BUCKET_EVIDENCES_URL = os.getenv('BUCKET_EVIDENCES_URL')
+BUCKET_SUPPORT_URL = os.getenv('BUCKET_SUPPORT_URL')
 
-def upload_pdf_to_supabase(file_storage:FileStorage):
+def upload_pdf_to_supabase(file_storage:FileStorage, bucket_name:str):
     orginal_filename = secure_filename(file_storage.filename)
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     unique_name = f"{timestamp}_{orginal_filename}"
@@ -19,11 +20,17 @@ def upload_pdf_to_supabase(file_storage:FileStorage):
     try:
         s3.upload_fileobj(
             file_storage,
-            BUCKET_NAME,
+            bucket_name,
             unique_name,
             ExtraArgs={'ContentType': 'application/pdf'}
         )
         print(f"Archivo {file_storage} subido correctamente como {unique_name}.")
+        if bucket_name == 'support-pdfs':
+            BUCKET_URL = BUCKET_SUPPORT_URL
+        elif bucket_name == 'evidences-pdfs':
+            BUCKET_URL = BUCKET_EVIDENCES_URL
+        else:
+            raise ValueError("Nombre de bucket no válido")
         return BUCKET_URL + unique_name
     except Exception as e:
         print(f"Error al subir el archivo: {e}")

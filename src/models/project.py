@@ -11,8 +11,9 @@ class Project(db.Model):
     investigators = db.Column(db.String(255), nullable=True)
     date = db.Column(db.String(255), nullable=True)
     status = db.Column(db.String(255), nullable=False)
+    formulated_type = db.Column(db.String(255), nullable=True)
     pdf_url = db.Column(db.String(500), nullable=True)
-
+    
     def insert_projects(self, email: str, projects: list):
         user = User.query.filter_by(email=email).first()
 

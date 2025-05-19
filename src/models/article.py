@@ -21,7 +21,6 @@ class Article(db.Model):
         Article.query.filter(
             Article.id_user == user.id,
             Article.state == 'publicado' ).delete()
-        print('--------------')
         articles = [
             Article(
             id = article['id'],
